@@ -289,10 +289,10 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 			public void onUpdate(float pSecondsElapsed) {
 				updateSpritePosition();
 				changeFish();
-				Log.e(tag, "toa do X = " + mMainFishRegion.getTextureX()
-						+ " toa do Y = " + mMainFishRegion.getTextureY()
-						+ " so width = " + mMainFish.getWidth()
-						+ " so height = " + mMainFish.getHeight());
+//				Log.e(tag, "toa do X = " + mMainFishRegion.getTextureX()
+//						+ " toa do Y = " + mMainFishRegion.getTextureY()
+//						+ " so width = " + mMainFish.getWidth()
+//						+ " so height = " + mMainFish.getHeight());
 			}
 		});
 		return mMainScene;
