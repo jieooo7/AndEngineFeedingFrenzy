@@ -1,9 +1,11 @@
 package vn.sunnet.qplay.andenginefeedingfrenzy.activity;
 
+import java.util.LinkedList;
 import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
+import org.andengine.engine.handler.collision.CollisionHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.engine.options.EngineOptions;
@@ -37,9 +39,13 @@ import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
+import org.andengine.util.adt.pool.PoolItem;
 import org.andengine.util.debug.Debug;
 import org.andengine.util.modifier.ease.EaseSineInOut;
 
+import vn.sunnet.qplay.andenginefeedingfrenzy.constant.FishConstants;
+import vn.sunnet.qplay.andenginefeedingfrenzy.fishpool.CaNhoPool;
+import vn.sunnet.qplay.andenginefeedingfrenzy.fishpool.CaNhoSprite;
 import vn.sunnet.qplay.andenginefeedingfrenzy.object.FishPool;
 
 import com.badlogic.gdx.math.Vector2;
@@ -47,6 +53,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 
+import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -64,13 +71,11 @@ import android.util.Log;
  * 
  */
 public class Level0Activity extends SimpleBaseGameActivity implements
-		SensorEventListener {
+		SensorEventListener, FishConstants {
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Constants
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	private static final int CAMERA_WIDTH = 640;
-	private static final int CAMERA_HEIGHT = 384;
 
 	private String tag = "Level0Activity";
 
@@ -92,8 +97,8 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 	private Sprite[] mBall = new Sprite[10];
 	private int numBall = 0;
 
-	private BitmapTextureAtlas mCaHongBitmapTextureAtlas;
-	private TiledTextureRegion mCaHongTiledTextureRegion;
+	private BitmapTextureAtlas mCaNho1BitmapTextureAtlas;
+	private TiledTextureRegion mCaNho1TiledTextureRegion;
 	private AnimatedSprite[] mCaHong = new AnimatedSprite[10];
 	private int numCaHong = 0;
 
@@ -102,15 +107,13 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 	private static AnimatedSprite[] mCaMap = new AnimatedSprite[4];
 	private int numCaMap = 0;
 
-	private BitmapTextureAtlas mCaNguAtlas;
-	private TiledTextureRegion mCaNguRegion;
+	private BitmapTextureAtlas mCaNho2Atlas;
+	private TiledTextureRegion mCaNho2Region;
 	private AnimatedSprite[] mCaNgu = new AnimatedSprite[10];
 	private int numCaNgu = 0;
 
-	private BitmapTextureAtlas mCaToTextureAtlas;
-	private TiledTextureRegion mCaToTextureRegion;
-	private AnimatedSprite[] mCaTo = new AnimatedSprite[10];
-	private int numCaTo = 0;
+	private BitmapTextureAtlas mCaNho3TextureAtlas;
+	private TiledTextureRegion mCaNho3TextureRegion;
 
 	private Random random;
 	private Handler mHandler;
@@ -127,14 +130,23 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 
 	private float tmp;
 
-	// private FishPool mFishPool;
+	private CaNhoPool caNho1Pool;
+	private LinkedList<CaNhoSprite> linkCaNho1;
 
-	// ===========================================================
+	private CaNhoPool caNho2Pool;
+	private LinkedList<CaNhoSprite> linkCaNho2;
+
+	private CaNhoPool caNho3Pool;
+	private LinkedList<CaNhoSprite> linkCaNho3;
+
+	private boolean flag = false;
+
+	// ==================================================
 	// Constructors
-	// ===========================================================
+	// ==================================================
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Getter & Setter
+	// Getter & Setters
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	// ----------------------------------------------------------------------------------------------
@@ -165,13 +177,13 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 				.createFromAsset(this.mBallAtlas, this, "ball2.png", 0, 0);
 		this.mBallAtlas.load();
 
-		this.mCaHongBitmapTextureAtlas = new BitmapTextureAtlas(
-				getTextureManager(), 512, 64,
+		this.mCaNho1BitmapTextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 512, 256,
 				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mCaHongTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mCaHongBitmapTextureAtlas, this,
-						"ca_nho.png", 0, 0, 6, 1);
-		this.mCaHongBitmapTextureAtlas.load();
+		this.mCaNho1TiledTextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mCaNho1BitmapTextureAtlas, this,
+						"ca_nho2.png", 0, 0, 6, 1);
+		this.mCaNho1BitmapTextureAtlas.load();
 
 		this.mCaMapTextureAtlas = new BitmapTextureAtlas(getTextureManager(),
 				256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -187,12 +199,12 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 						"mainfish5.png", 0, 0, 6, 1);
 		this.mMainFishAtlas.load();
 
-		this.mCaNguAtlas = new BitmapTextureAtlas(getTextureManager(), 512,
+		this.mCaNho2Atlas = new BitmapTextureAtlas(getTextureManager(), 1024,
 				256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mCaNguRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mCaNguAtlas, this, "ca_nho2.png", 0,
-						0, 6, 1);
-		this.mCaNguAtlas.load();
+		this.mCaNho2Region = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mCaNho2Atlas, this, "ca_nho3.png",
+						0, 0, 6, 1);
+		this.mCaNho2Atlas.load();
 
 		this.mBitmapTextureAtlas = new BitmapTextureAtlas(
 				this.getTextureManager(), 64, 64, TextureOptions.BILINEAR);
@@ -201,12 +213,12 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 						"face_box_tiled.png", 0, 0, 2, 1); // 64x32
 		this.mBitmapTextureAtlas.load();
 
-		this.mCaToTextureAtlas = new BitmapTextureAtlas(getTextureManager(),
+		this.mCaNho3TextureAtlas = new BitmapTextureAtlas(getTextureManager(),
 				1024, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mCaToTextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mCaToTextureAtlas, this,
-						"ca_nho7.png", 0, 0, 6, 1);
-		this.mCaToTextureAtlas.load();
+		this.mCaNho3TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mCaNho3TextureAtlas, this,
+						"ca_nho4.png", 0, 0, 6, 1);
+		this.mCaNho3TextureAtlas.load();
 	}
 
 	@Override
@@ -231,54 +243,53 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 
 		mMainFish = new AnimatedSprite(sX, sY, this.mMainFishRegion,
 				this.mEngine.getVertexBufferObjectManager());
-		// mMainFish.registerEntityModifier(new SequenceEntityModifier(
-		// new MoveModifier(5, CAMERA_WIDTH / 3, CAMERA_WIDTH / 2, 0,
-		// CAMERA_HEIGHT / 2)));
-		// mMainFish.
 		mMainFish.animate(new long[] { 100, 100, 100 }, 3, 5, true);
-		// mMainFish.animate(100);
-		mMainFish.setScale(1);
+		// mMainFish.setScale(1);
 		mMainScene.attachChild(mMainFish);
-
-		// CaNho caNho = new CaNho(3, 2000, false);
-		// mHandler.postDelayed(caNho.mStartCaHong, 2000);
-		CaMap caMap = new CaMap(1, 2000);
-		mHandler.postDelayed(caMap.mStartCaMap, 1000);
-		CaNgu caNgu = new CaNgu(4, 4000);
-		mHandler.postDelayed(caNgu.mStartCaNgu, 2000);
 
 		/*
 		 * Object pool
 		 */
+		linkCaNho1 = new LinkedList<CaNhoSprite>();
+		caNho1Pool = new CaNhoPool(mEngine, mCaNho1TiledTextureRegion, 1);
+		// linkCaNho1.add(caNho1Pool.obtainPoolItem());
+		// this.mMainScene.attachChild(linkCaNho1.getLast());
 
-		final FishPool mFishPool = new FishPool(mEngine,
-				mCaHongTiledTextureRegion, 1);
-		final FishPool nFishPool = new FishPool(mEngine, mCaToTextureRegion, 0);
-		TimerHandler timerHandler = new TimerHandler(5, true,
+		linkCaNho2 = new LinkedList<CaNhoSprite>();
+		caNho2Pool = new CaNhoPool(getEngine(), mCaNho2Region, 2);
+		// linkCaNho2.add(caNho2Pool.obtainPoolItem());
+		// this.mMainScene.attachChild(linkCaNho2.getLast());
+
+		linkCaNho3 = new LinkedList<CaNhoSprite>();
+		caNho3Pool = new CaNhoPool(mEngine, mCaNho3TextureRegion, 3);
+		// linkCaNho3.add(caNho3Pool.obtainPoolItem());
+		// this.mMainScene.attachChild(linkCaNho3.getLast());
+
+		TimerHandler timerHandler = new TimerHandler(4, true,
 				new ITimerCallback() {
-					int i = 0;
 
 					public void onTimePassed(TimerHandler pTimerHandler) {
 						// TODO Auto-generated method stub
-						mFishPool.obtainPoolItem();
-						// i = i + 1;
-						// if (i % 5 == 0) {
-						mFishPool.doSomething();
-						nFishPool.obtainPoolItem();
-						nFishPool.doSomething();
-						// }
+						linkCaNho1.add(caNho1Pool.obtainPoolItem());
+						linkCaNho2.add(caNho2Pool.obtainPoolItem());
+						linkCaNho3.add(caNho3Pool.obtainPoolItem());
+						try {
+							Level0Activity.this.mMainScene
+									.attachChild(linkCaNho3.getLast());
+							Level0Activity.this.mMainScene
+									.attachChild(linkCaNho1.getLast());
+							Level0Activity.this.mMainScene
+									.attachChild(linkCaNho2.getLast());
+						} catch (IllegalStateException e) {
+
+						}
 					}
 				});
 		this.mEngine.registerUpdateHandler(timerHandler);
-		final Path ballPath = new Path(2).to(CAMERA_WIDTH - 30,
-				CAMERA_HEIGHT + 10).to(CAMERA_WIDTH - 30 - random.nextInt(100),
-				-10);
+
 		BongBong bongBong = new BongBong(10, 2000, CAMERA_WIDTH - 30,
 				CAMERA_WIDTH - 30, CAMERA_HEIGHT + 10, -10);
 		mHandler.postDelayed(bongBong.mStartBall, 1000);
-
-		CaTo caTo = new CaTo(4, 2000);
-		mHandler.postDelayed(caTo.mLunchCaLon, 2000);
 
 		this.mEngine.registerUpdateHandler(new IUpdateHandler() {
 
@@ -286,13 +297,72 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 
 			}
 
+			int i;
+
 			public void onUpdate(float pSecondsElapsed) {
 				updateSpritePosition();
 				changeFish();
-//				Log.e(tag, "toa do X = " + mMainFishRegion.getTextureX()
-//						+ " toa do Y = " + mMainFishRegion.getTextureY()
-//						+ " so width = " + mMainFish.getWidth()
-//						+ " so height = " + mMainFish.getHeight());
+				float pX = 0;
+				if (flag == true) {
+					pX = mMainFish.getX();
+				} else if (flag == false) {
+					pX = mMainFish.getX() + mMainFish.getWidth();
+				}
+				try {
+					for (i = 0; i < linkCaNho1.size(); i++) {
+						if (linkCaNho1.get(i).getX() > CAMERA_WIDTH + 85
+								|| linkCaNho1.get(i).getX() < -85) {
+							caNho1Pool.recyclePoolItem(linkCaNho1.get(i));
+							// Log.e(tag, "Remove");
+							linkCaNho1.remove(i);
+						}
+
+						float pY = mMainFish.getY() + mMainFish.getHeight() / 2;
+						// Log.e(tag, "toa do mom ca = " + pX + " va " + pY);
+						if (pX == linkCaNho1.get(i).getX()
+								&& pY == (linkCaNho1.get(i).getY())
+										+ linkCaNho1.get(i).getHeight() / 2) {
+							Level0Activity.this.mMainScene
+									.detachChild(linkCaNho1.get(i));
+							linkCaNho1.remove(i);
+							Log.e(tag, "Va Cham");
+						}
+						if (mMainFish.collidesWith(linkCaNho1.get(i))) {
+							Log.e(tag, "Va Cham");
+							mMainFish.setFlippedHorizontal(true);
+							mMainFish.animate(new long[] { 200, 200, 200 }, 0,
+									2, true);
+							Level0Activity.this.mMainScene
+									.detachChild(linkCaNho1.get(i));
+							caNho1Pool.recyclePoolItem(linkCaNho1.get(i));
+							linkCaNho1.remove(i);
+
+						} 
+					}
+
+					for (int j = 0; j < linkCaNho2.size(); j++) {
+						if (linkCaNho2.get(j).getX() > CAMERA_WIDTH + 85
+								|| linkCaNho2.get(j).getX() < -85) {
+							caNho2Pool.recyclePoolItem(linkCaNho2.get(j));
+							linkCaNho2.remove(j);
+						}
+					}
+					for (int z = 0; z < linkCaNho3.size(); z++) {
+						if (linkCaNho3.get(z).getX() > CAMERA_WIDTH + 85
+								|| linkCaNho3.get(z).getX() < -85) {
+							caNho3Pool.recyclePoolItem(linkCaNho3.get(z));
+							linkCaNho3.remove(z);
+						}
+					}
+				} catch (Exception e) {
+
+				}
+				// Log.e(tag, "So ca nho1 = " + linkCaNho1.size());
+				// Log.e(tag, "toa do X = " + mMainFishRegion.getTextureX()
+				// + " toa do Y = " + mMainFishRegion.getTextureY()
+				// + " so width = " + mMainFish.getWidth()
+				// + " so height = " + mMainFish.getHeight());
+
 			}
 		});
 		return mMainScene;
@@ -373,10 +443,17 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 	public void changeFish() {
 		if (accellerometerSpeedX > 1) {
 			mMainFish.setFlippedHorizontal(false);
+			flag = false;
 		} else {
 			mMainFish.setFlippedHorizontal(true);
+			flag = true;
 		}
 	}
+
+	// public CollisionHandler getPoint(){
+	// CollisionHandler handler=new CollisionHandler(pCollisionCallback,
+	// pCheckShape, pTargetShape)
+	// }
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Inner and Anonymous Classes
@@ -436,339 +513,6 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 				Level0Activity.this.mMainScene.attachChild(mBall[i]);
 				if (numBall < soLuong) {
 					mHandler.postDelayed(mStartBall, time);
-				}
-			}
-		};
-	}
-
-	public class CaNho {
-
-		public int soLuong;
-		public long time;
-		public int numCaHong = 0;
-		public boolean tmp;
-
-		public CaNho(int soLuong, long time, boolean tmp) {
-			this.soLuong = soLuong;
-			this.time = time;
-			this.tmp = tmp;
-		}
-
-		private Runnable mStartCaHong = new Runnable() {
-
-			public void run() {
-				final int j = numCaHong++;
-				int X1 = 10 + random.nextInt(100);
-				int X2 = 78 + random.nextInt(100);
-				int X3 = 10 + random.nextInt(100);
-				int Y1 = 50 + random.nextInt(100);
-				int Y2 = 20 + random.nextInt(100);
-				int Y3 = 50 + random.nextInt(100);
-				final Path path1 = new Path(3).to(CAMERA_WIDTH + X1, Y1)
-						.to(X2, Y2).to(CAMERA_WIDTH + X3, Y3);
-				final Path path2 = new Path(3).to(-10, Y1)
-						.to(CAMERA_WIDTH - X2, Y2).to(-10, Y1);
-				final Path path;
-
-				if (tmp != true) {
-					path = new Path(path1);
-				} else {
-					path = new Path(path2);
-				}
-
-				mCaHong[j] = new AnimatedSprite(X1, Y1,
-						Level0Activity.this.mCaHongTiledTextureRegion,
-						Level0Activity.this.getVertexBufferObjectManager());
-				mCaHong[j].registerEntityModifier(new PathModifier(20, path,
-						null, new IPathModifierListener() {
-							public void onPathStarted(
-									final PathModifier pPathModifier,
-									final IEntity pEntity) {
-							}
-
-							public void onPathWaypointStarted(
-									final PathModifier pPathModifier,
-									final IEntity pEntity,
-									final int pWaypointIndex) {
-								switch (pWaypointIndex) {
-								case 0:
-									mCaHong[j].animate(new long[] { 200, 200,
-											200 }, 0, 2, true);
-									mCaHong[j].setFlippedHorizontal(false);
-									break;
-								case 1:
-									// mCaHong[j].animate(
-									// new long[] { 200, 200, 200 }, 4, 6,
-									// true);
-									mCaHong[j].setFlippedHorizontal(true);
-									break;
-								}
-							}
-
-							public void onPathWaypointFinished(
-									final PathModifier pPathModifier,
-									final IEntity pEntity,
-									final int pWaypointIndex) {
-							}
-
-							public void onPathFinished(
-									final PathModifier pPathModifier,
-									final IEntity pEntity) {
-							}
-						}));
-				Level0Activity.this.mMainScene
-						.attachChild(Level0Activity.this.mCaHong[j]);
-				if (numCaHong < soLuong) {
-					mHandler.postDelayed(mStartCaHong, time);
-				}
-			}
-		};
-	}
-
-	public class CaMap {
-		public int soLuong;
-		public long time;
-
-		public CaMap(int soLuong, long time) {
-			this.soLuong = soLuong;
-			this.time = time;
-		}
-
-		private Runnable mStartCaMap = new Runnable() {
-
-			public void run() {
-				final int j = numCaMap++;
-				int X1 = 10 + random.nextInt(100);
-				int X2 = CAMERA_WIDTH + random.nextInt(50);
-				int X3 = 10 + random.nextInt(100);
-				int Y1 = CAMERA_HEIGHT - random.nextInt(50);
-				int Y2 = CAMERA_HEIGHT - random.nextInt(50);
-				int Y3 = 20 + random.nextInt(50);
-				final Path path = new Path(5).to(-100, Y1).to(X2, Y2)
-						.to(CAMERA_WIDTH + 100, Y3).to(-100, Y3).to(-100, Y1);
-				mCaMap[j] = new AnimatedSprite(-10, Y1,
-						Level0Activity.this.mCaMapTiledTextureRegion,
-						Level0Activity.this.getVertexBufferObjectManager());
-				mCaMap[j].registerEntityModifier(new LoopEntityModifier(
-						new PathModifier(10, path, null,
-								new IPathModifierListener() {
-									public void onPathStarted(
-											final PathModifier pPathModifier,
-											final IEntity pEntity) {
-									}
-
-									public void onPathWaypointStarted(
-											final PathModifier pPathModifier,
-											final IEntity pEntity,
-											final int pWaypointIndex) {
-										switch (pWaypointIndex) {
-										case 0:
-											mCaMap[j]
-													.animate(new long[] { 200,
-															200, 200, 200 }, 0,
-															3, true);
-											mCaMap[j]
-													.setFlippedHorizontal(false);
-											break;
-
-										case 1:
-											mCaMap[j]
-													.animate(new long[] { 200,
-															200, 200, 200 }, 0,
-															3, true);
-
-											break;
-										case 2:
-											mCaMap[j]
-													.animate(new long[] { 200,
-															200, 200, 200 }, 0,
-															3, true);
-											mCaMap[j]
-													.setFlippedHorizontal(true);
-											break;
-										case 3:
-											mCaMap[j]
-													.animate(new long[] { 200,
-															200, 200, 200 }, 0,
-															3, true);
-											break;
-
-										case 4:
-											mCaMap[j]
-													.animate(new long[] { 200,
-															200, 200, 200 }, 0,
-															3, true);
-											break;
-										}
-									}
-
-									public void onPathWaypointFinished(
-											final PathModifier pPathModifier,
-											final IEntity pEntity,
-											final int pWaypointIndex) {
-									}
-
-									public void onPathFinished(
-											final PathModifier pPathModifier,
-											final IEntity pEntity) {
-
-									}
-								})));
-				Level0Activity.this.mMainScene
-						.attachChild(Level0Activity.this.mCaMap[j]);
-				// if (numCaMap < 1) {
-				// mHandler.postDelayed(mStartCaMap, 20000);
-				// }
-			}
-		};
-	}
-
-	public class CaNgu {
-		public int soLuong;
-		public long time;
-
-		public CaNgu(int soLuong, long time) {
-			this.soLuong = soLuong;
-			this.time = time;
-		}
-
-		private Runnable mStartCaNgu = new Runnable() {
-
-			public void run() {
-				final int j = numCaNgu++;
-				int X1 = 10 + random.nextInt(100);
-				int X2 = 78 + random.nextInt(100);
-				int X3 = 10 + random.nextInt(100);
-				int Y1 = CAMERA_HEIGHT - random.nextInt(100);
-				int Y2 = CAMERA_HEIGHT - random.nextInt(100);
-				int Y3 = 50 + random.nextInt(100);
-				final Path path = new Path(4).to(CAMERA_WIDTH + X1, Y1)
-						.to(-50, Y2).to(-50, Y3).to(CAMERA_WIDTH + X1, Y3);
-				mCaNgu[j] = new AnimatedSprite(X1, Y1,
-						Level0Activity.this.mCaNguRegion,
-						Level0Activity.this.getVertexBufferObjectManager());
-				mCaNgu[j].registerEntityModifier(new PathModifier(60, path,
-						null, new IPathModifierListener() {
-							public void onPathStarted(
-									final PathModifier pPathModifier,
-									final IEntity pEntity) {
-							}
-
-							public void onPathWaypointStarted(
-									final PathModifier pPathModifier,
-									final IEntity pEntity,
-									final int pWaypointIndex) {
-								switch (pWaypointIndex) {
-								case 0:
-									mCaNgu[j].animate(new long[] { 200, 200,
-											200, 200 }, 0, 3, true);
-									mCaNgu[j].setFlippedHorizontal(false);
-									break;
-								case 1:
-									mCaNgu[j].animate(new long[] { 200, 200,
-											200, 200 }, 0, 3, true);
-									break;
-								case 2:
-									mCaNgu[j].animate(new long[] { 200, 200,
-											200, 200 }, 0, 3, true);
-									mCaNgu[j].setFlippedHorizontal(true);
-									break;
-								case 3:
-									mCaNgu[j].animate(new long[] { 200, 200,
-											200, 200 }, 0, 3, true);
-									break;
-								}
-							}
-
-							public void onPathWaypointFinished(
-									final PathModifier pPathModifier,
-									final IEntity pEntity,
-									final int pWaypointIndex) {
-							}
-
-							public void onPathFinished(
-									final PathModifier pPathModifier,
-									final IEntity pEntity) {
-							}
-						}));
-				Level0Activity.this.mMainScene
-						.attachChild(Level0Activity.this.mCaNgu[j]);
-				if (numCaNgu < soLuong) {
-					mHandler.postDelayed(mStartCaNgu, time);
-				}
-			}
-		};
-	}
-
-	class CaTo {
-		private int soLuong;
-		private long time;
-
-		public CaTo(int soLuong, long time) {
-			this.soLuong = soLuong;
-			this.time = time;
-		}
-
-		private Runnable mLunchCaLon = new Runnable() {
-
-			public void run() {
-				// TODO Auto-generated method stub
-				final int i = numCaTo++;
-				final Path path = new Path(3)
-						.to(-15, CAMERA_HEIGHT / 2)
-						.to(CAMERA_WIDTH / 2,
-								CAMERA_HEIGHT / 2 + random.nextInt(100))
-						.to(-15, CAMERA_HEIGHT / 2 + random.nextInt(100));
-				mCaTo[i] = new AnimatedSprite(-15, CAMERA_HEIGHT / 2,
-						Level0Activity.this.mCaToTextureRegion,
-						Level0Activity.this.getVertexBufferObjectManager());
-				mCaTo[i].registerEntityModifier(new LoopEntityModifier(
-						new PathModifier(20, path, new IPathModifierListener() {
-
-							public void onPathWaypointStarted(
-									PathModifier pPathModifier,
-									IEntity pEntity, int pWaypointIndex) {
-								// TODO Auto-generated method stub
-								switch (pWaypointIndex) {
-								case 0:
-									mCaTo[i].animate(
-											new long[] { 200, 200, 200 }, 0, 2,
-											true);
-									mCaTo[i].setFlippedHorizontal(true);
-									break;
-								case 1:
-									mCaTo[i].animate(
-											new long[] { 200, 200, 200 }, 0, 2,
-											true);
-									mCaTo[i].setFlippedHorizontal(false);
-									break;
-								default:
-									break;
-								}
-							}
-
-							public void onPathWaypointFinished(
-									PathModifier pPathModifier,
-									IEntity pEntity, int pWaypointIndex) {
-								// TODO Auto-generated method stub
-
-							}
-
-							public void onPathStarted(
-									PathModifier pPathModifier, IEntity pEntity) {
-								// TODO Auto-generated method stub
-
-							}
-
-							public void onPathFinished(
-									PathModifier pPathModifier, IEntity pEntity) {
-								// TODO Auto-generated method stub
-
-							}
-						})));
-				Level0Activity.this.mMainScene.attachChild(mCaTo[i]);
-				if (numCaTo < 4) {
-					mHandler.postDelayed(mLunchCaLon, 2000);
 				}
 			}
 		};

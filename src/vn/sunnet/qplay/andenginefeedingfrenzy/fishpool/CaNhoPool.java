@@ -58,8 +58,7 @@ public class CaNhoPool extends GenericPool<CaNhoSprite> {
 		// TODO Auto-generated method stub
 		listPaths = mPathFish.pathCaNho1();
 
-		return new CaNhoSprite(random.nextInt(listPaths.size()), 0, 64, 64,
-				mTiledTextureRegion,
+		return new CaNhoSprite(tmp, 0, 64, 64, mTiledTextureRegion,
 				this.mEngine.getVertexBufferObjectManager());
 	}
 

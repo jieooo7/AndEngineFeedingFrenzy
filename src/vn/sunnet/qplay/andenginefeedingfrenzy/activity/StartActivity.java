@@ -92,8 +92,6 @@ public class StartActivity extends SimpleBaseGameActivity implements
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Constants
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// private static final int CAMERA_WD = CAMERA_WIDTH;
-	// private static final int CAMERA_HEIGHT = 384;
 
 	protected final static int MENU_PLAY = 100;
 	protected final static int MENU_SCORES = MENU_PLAY + 1;
@@ -290,19 +288,16 @@ public class StartActivity extends SimpleBaseGameActivity implements
 		 * Get Path
 		 */
 
-		listPaths = mPathFish.pathCaNho1();
-		final int path = random.nextInt(listPaths.size());
-
-		caNhoPool = new CaNhoPool(this.mEngine, mFishTiledTextureRegion, path);
+		caNhoPool = new CaNhoPool(this.mEngine, mFishTiledTextureRegion, 1);
 		linkedCaNho = new LinkedList<CaNhoSprite>();
-		linkedCaNho.add(caNhoPool.obtainPoolItem());
-		this.mMainScene.attachChild(linkedCaNho.getLast());
+//		linkedCaNho.add(caNhoPool.obtainPoolItem());
+//		this.mMainScene.attachChild(linkedCaNho.getLast());
 
 		final CaNhoPool mCaNho5Pool = new CaNhoPool(this.mEngine,
-				mCaNho5TextureRegion, path);
+				mCaNho5TextureRegion, 2);
 		final LinkedList<CaNhoSprite> listCaNho5 = new LinkedList<CaNhoSprite>();
-		listCaNho5.add(mCaNho5Pool.obtainPoolItem());
-		this.mMainScene.attachChild(listCaNho5.getLast());
+//		listCaNho5.add(mCaNho5Pool.obtainPoolItem());
+//		this.mMainScene.attachChild(listCaNho5.getLast());
 
 		TimerHandler timerHandler = new TimerHandler(4, true,
 				new ITimerCallback() {
@@ -359,26 +354,31 @@ public class StartActivity extends SimpleBaseGameActivity implements
 				// TODO Auto-generated method stub
 				updateMainFish();
 				updateCaMap();
-				for (int i = 0; i < linkedCaNho.size(); i++) {
-					if (linkedCaNho.get(i).getX() > CAMERA_WIDTH + 10
-							|| linkedCaNho.get(i).getX() < -10) {
-						caNhoPool.recyclePoolItem(linkedCaNho.get(i));
-						linkedCaNho.remove(i);
+				try {
+					for (int i = 0; i < linkedCaNho.size(); i++) {
+						if (linkedCaNho.get(i).getX() > CAMERA_WIDTH + 85
+								|| linkedCaNho.get(i).getX() < -85) {
+							caNhoPool.recyclePoolItem(linkedCaNho.get(i));
+							linkedCaNho.remove(i);
+						}
+						// if (mMainFishSprite.collidesWith(linkedCaNho.get(i)))
+						// {
+						// // linkedCaNho.get(i).isVisible();
+						// StartActivity.this.mMainScene.detachChild(linkedCaNho
+						// .get(i));
+						// Log.e(tag, "Va cham");
+						// }
 					}
-					if (mMainFishSprite.collidesWith(linkedCaNho.get(i))) {
-						// linkedCaNho.get(i).isVisible();
-						StartActivity.this.mMainScene.detachChild(linkedCaNho
-								.get(i));
-						Log.e(tag, "Va cham");
+//					Log.e(tag, "So ca= " + linkedCaNho.size());
+					for (int j = 0; j < listCaNho5.size(); j++) {
+						if (listCaNho5.get(j).getX() > CAMERA_WIDTH + 85
+								|| listCaNho5.get(j).getX() < -85) {
+							mCaNho5Pool.recyclePoolItem(listCaNho5.get(j));
+							listCaNho5.remove(j);
+						}
 					}
-				}
-				// Log.e(tag, "So sence = " +);
-				for (int j = 0; j < listCaNho5.size(); j++) {
-					if (listCaNho5.get(j).getX() > CAMERA_WIDTH + 10
-							|| listCaNho5.get(j).getX() < -10) {
-						mCaNho5Pool.recyclePoolItem(listCaNho5.get(j));
-						listCaNho5.remove(j);
-					}
+				} catch (Exception e) {
+
 				}
 			}
 		});
@@ -704,24 +704,6 @@ public class StartActivity extends SimpleBaseGameActivity implements
 		listCaMapPath.add(path4);
 	}
 
-	// public Rectangle getRecFish(Sprite sprite) {
-	// float pX = sprite.getX();
-	// float pY = sprite.getX();
-	// float pWidth = sprite.getWidth();
-	// float pHeight = sprite.getHeight();
-	// Rectangle rectangle = new Rectangle(pX, pY, pWidth, pHeight,
-	// this.getVertexBufferObjectManager());
-	// return rectangle;
-	// }
-	public Rect getRect(AnimatedSprite sprite) {
-		int left = 0;
-		int top = 0;
-		int right = 0;
-		int bottom = 0;
-		Rect rect = new Rect(left, top, right, bottom);
-		
-		return rect;
-	}
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Inner and Anonymous Classes
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
