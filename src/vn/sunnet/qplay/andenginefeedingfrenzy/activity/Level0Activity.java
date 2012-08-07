@@ -23,6 +23,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.AnimatedSprite.IAnimationListener;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.extension.physics.box2d.FixedStepPhysicsWorld;
@@ -327,17 +328,49 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 							linkCaNho1.remove(i);
 							Log.e(tag, "Va Cham");
 						}
-						if (mMainFish.collidesWith(linkCaNho1.get(i))) {
+						if (linkCaNho1.get(i).contains(pX, pY)) {
 							Log.e(tag, "Va Cham");
 							mMainFish.setFlippedHorizontal(true);
+							mMainFish.stopAnimation(0);
 							mMainFish.animate(new long[] { 200, 200, 200 }, 0,
-									2, true);
+									2, false, new IAnimationListener() {
+
+										public void onAnimationStarted(
+												AnimatedSprite pAnimatedSprite,
+												int pInitialLoopCount) {
+											// TODO Auto-generated method stub
+
+										}
+
+										public void onAnimationLoopFinished(
+												AnimatedSprite pAnimatedSprite,
+												int pRemainingLoopCount,
+												int pInitialLoopCount) {
+											// TODO Auto-generated method stub
+
+										}
+
+										public void onAnimationFrameChanged(
+												AnimatedSprite pAnimatedSprite,
+												int pOldFrameIndex,
+												int pNewFrameIndex) {
+											// TODO Auto-generated method stub
+
+										}
+
+										public void onAnimationFinished(
+												AnimatedSprite pAnimatedSprite) {
+											// TODO Auto-generated method stub
+											mMainFish.animate(new long[] { 200,
+													200, 200 }, 3, 5, true);
+										}
+									});
 							Level0Activity.this.mMainScene
 									.detachChild(linkCaNho1.get(i));
 							caNho1Pool.recyclePoolItem(linkCaNho1.get(i));
 							linkCaNho1.remove(i);
+						}
 
-						} 
 					}
 
 					for (int j = 0; j < linkCaNho2.size(); j++) {
