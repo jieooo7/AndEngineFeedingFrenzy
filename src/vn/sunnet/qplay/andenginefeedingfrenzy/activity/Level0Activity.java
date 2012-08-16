@@ -2,6 +2,8 @@ package vn.sunnet.qplay.andenginefeedingfrenzy.activity;
 
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
@@ -26,13 +28,6 @@ import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.AnimatedSprite.IAnimationListener;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
-import org.andengine.extension.physics.box2d.FixedStepPhysicsWorld;
-import org.andengine.extension.physics.box2d.PhysicsConnector;
-import org.andengine.extension.physics.box2d.PhysicsFactory;
-import org.andengine.extension.physics.box2d.PhysicsWorld;
-import org.andengine.extension.physics.box2d.util.Vector2Pool;
-import org.andengine.input.sensor.acceleration.AccelerationData;
-import org.andengine.input.sensor.acceleration.IAccelerationListener;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -45,9 +40,9 @@ import org.andengine.util.debug.Debug;
 import org.andengine.util.modifier.ease.EaseSineInOut;
 
 import vn.sunnet.qplay.andenginefeedingfrenzy.constant.FishConstants;
+import vn.sunnet.qplay.andenginefeedingfrenzy.control.LevelController;
 import vn.sunnet.qplay.andenginefeedingfrenzy.fishpool.CaNhoPool;
 import vn.sunnet.qplay.andenginefeedingfrenzy.fishpool.CaNhoSprite;
-import vn.sunnet.qplay.andenginefeedingfrenzy.object.FishPool;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -89,47 +84,69 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 	private BitmapTextureAtlas mBackgroundAtlas;
 	private ITextureRegion mBackgroundRegion;
 
-	private BitmapTextureAtlas mMainFishAtlas;
-	private TiledTextureRegion mMainFishRegion;
-	private AnimatedSprite mMainFish;
-
 	private BitmapTextureAtlas mBallAtlas;
 	private ITextureRegion mBallRegion;
 	private Sprite[] mBall = new Sprite[10];
 	private int numBall = 0;
 
-	private BitmapTextureAtlas mCaNho1BitmapTextureAtlas;
-	private TiledTextureRegion mCaNho1TiledTextureRegion;
-	private AnimatedSprite[] mCaHong = new AnimatedSprite[10];
-	private int numCaHong = 0;
+	public AnimatedSprite mMainFish;
 
-	private BitmapTextureAtlas mCaMapTextureAtlas;
-	private TiledTextureRegion mCaMapTiledTextureRegion;
-	private static AnimatedSprite[] mCaMap = new AnimatedSprite[4];
-	private int numCaMap = 0;
+	public BitmapTextureAtlas mMainFish1TextureAtlas;
+	public TiledTextureRegion mMainFish1TextureRegion;
 
-	private BitmapTextureAtlas mCaNho2Atlas;
-	private TiledTextureRegion mCaNho2Region;
-	private AnimatedSprite[] mCaNgu = new AnimatedSprite[10];
-	private int numCaNgu = 0;
+	public BitmapTextureAtlas mMainFish2TextureAtlas;
+	public TiledTextureRegion mMainFish2TextureRegion;
 
-	private BitmapTextureAtlas mCaNho3TextureAtlas;
-	private TiledTextureRegion mCaNho3TextureRegion;
+	public BitmapTextureAtlas mMainFish3TextureAtlas;
+	public TiledTextureRegion mMainFish3TextureRegion;
 
-	private Random random;
-	private Handler mHandler;
+	public BitmapTextureAtlas mMainFish4TextureAtlas;
+	public TiledTextureRegion mMainFish4TextureRegion;
 
-	private BitmapTextureAtlas mBitmapTextureAtlas;
-	private TiledTextureRegion mBoxFaceTextureRegion;
+	public BitmapTextureAtlas mMainFish5TextureAtlas;
+	public TiledTextureRegion mMainFish5TextureRegion;
 
-	private SensorManager sensorManager;
+	public BitmapTextureAtlas mCaNho1TextureAtlas;
+	public TiledTextureRegion mCaNho1TextureRegion;
 
-	private float accellerometerSpeedX;
-	private float accellerometerSpeedY;
-	private float sX;
-	private float sY; // Sprite coordinates
+	public BitmapTextureAtlas mCaNho2TextureAtlas;
+	public TiledTextureRegion mCaNho2TextureRegion;
 
-	private float tmp;
+	public BitmapTextureAtlas mCaNho3TextureAtlas;
+	public TiledTextureRegion mCaNho3TextureRegion;
+
+	public BitmapTextureAtlas mCaNho4TextureAtlas;
+	public TiledTextureRegion mCaNho4TextureRegion;
+
+	public BitmapTextureAtlas mCaNho5TextureAtlas;
+	public TiledTextureRegion mCaNho5TextureRegion;
+
+	public BitmapTextureAtlas mCaNho6TextureAtlas;
+	public TiledTextureRegion mCaNho6TextureRegion;
+
+	public BitmapTextureAtlas mCaNho7TextureAtlas;
+	public TiledTextureRegion mCaNho7TextureRegion;
+
+	public BitmapTextureAtlas mBackground1TextureAtlas;
+	public ITextureRegion mBackground1ITextureRegion;
+
+	public BitmapTextureAtlas mBackground2TextureAtlas;
+	public ITextureRegion mBackground2ITextureRegion;
+
+	public BitmapTextureAtlas mBackground3TextureAtlas;
+	public ITextureRegion mBackground3ITextureRegion;
+
+	public Random random;
+	public Handler mHandler;
+
+	public SensorManager sensorManager;
+
+	public float accellerometerSpeedX;
+	public float accellerometerSpeedY;
+	public float sX;
+	public float sY; // Sprite coordinates
+
+	public float tmp;
 
 	private CaNhoPool caNho1Pool;
 	private LinkedList<CaNhoSprite> linkCaNho1;
@@ -142,6 +159,9 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 
 	private boolean flag = false;
 
+	static Level0Activity mLevel0Activity;
+	public LevelController mLevelController;
+
 	// ==================================================
 	// Constructors
 	// ==================================================
@@ -149,6 +169,9 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Getter & Setters
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	public Level0Activity getInstance() {
+		return mLevel0Activity;
+	}
 
 	// ----------------------------------------------------------------------------------------------
 	// Methods for/from SuperClass/Interfaces
@@ -156,6 +179,8 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 	public EngineOptions onCreateEngineOptions() {
 		mHandler = new Handler();
 		random = new Random();
+		mLevel0Activity = this;
+		mLevelController = new LevelController(mLevel0Activity);
 		this.mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
 		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED,
@@ -165,239 +190,322 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 
 	@Override
 	protected void onCreateResources() {
-		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/Level0/");
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		this.mBackgroundAtlas = new BitmapTextureAtlas(getTextureManager(),
 				1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mBackgroundRegion = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBackgroundAtlas, this, "bg2.jpg", 0, 0);
+				.createFromAsset(this.mBackgroundAtlas, this, "map/map1.png",
+						0, 0);
 		this.mBackgroundAtlas.load();
 
 		this.mBallAtlas = new BitmapTextureAtlas(getTextureManager(), 128, 128,
 				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mBallRegion = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBallAtlas, this, "ball2.png", 0, 0);
+				.createFromAsset(this.mBallAtlas, this, "bongbong.png", 0, 0);
 		this.mBallAtlas.load();
 
-		this.mCaNho1BitmapTextureAtlas = new BitmapTextureAtlas(
-				getTextureManager(), 512, 256,
+		/********************** Load Background **********************/
+
+		this.mBackground1TextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 1024, 1024,
 				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mCaNho1TiledTextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mCaNho1BitmapTextureAtlas, this,
-						"ca_nho2.png", 0, 0, 6, 1);
-		this.mCaNho1BitmapTextureAtlas.load();
+		this.mBackground1ITextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBackground1TextureAtlas, this,
+						"map/map1.png", 0, 0);
+		this.mBackground1TextureAtlas.load();
 
-		this.mCaMapTextureAtlas = new BitmapTextureAtlas(getTextureManager(),
-				256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mCaMapTiledTextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mCaMapTextureAtlas, this,
-						"ca-map.png", 0, 0, 1, 4);
-		this.mCaMapTextureAtlas.load();
+		this.mBackground2TextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 1024, 1024,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mBackground2ITextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBackground2TextureAtlas, this,
+						"map/map2.png", 0, 0);
+		this.mBackground2TextureAtlas.load();
 
-		this.mMainFishAtlas = new BitmapTextureAtlas(getTextureManager(), 1024,
-				512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mMainFishRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mMainFishAtlas, this,
-						"mainfish5.png", 0, 0, 6, 1);
-		this.mMainFishAtlas.load();
+		this.mBackground3TextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 1024, 1024,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mBackground3ITextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBackground3TextureAtlas, this,
+						"map/map3.png", 0, 0);
+		this.mBackground3TextureAtlas.load();
 
-		this.mCaNho2Atlas = new BitmapTextureAtlas(getTextureManager(), 1024,
-				256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mCaNho2Region = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mCaNho2Atlas, this, "ca_nho3.png",
-						0, 0, 6, 1);
-		this.mCaNho2Atlas.load();
+		/********** ************Load Main Fish **********************/
 
-		this.mBitmapTextureAtlas = new BitmapTextureAtlas(
-				this.getTextureManager(), 64, 64, TextureOptions.BILINEAR);
-		this.mBoxFaceTextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
-						"face_box_tiled.png", 0, 0, 2, 1); // 64x32
-		this.mBitmapTextureAtlas.load();
+		this.mMainFish1TextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 256, 64,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mMainFish1TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mMainFish1TextureAtlas, this,
+						"cachinh/c1.png", 0, 0, 6, 1);
+		this.mMainFish1TextureAtlas.load();
+
+		this.mMainFish2TextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 512, 64,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mMainFish2TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mMainFish2TextureAtlas, this,
+						"cachinh/c2.png", 0, 0, 6, 1);
+		this.mMainFish2TextureAtlas.load();
+
+		this.mMainFish3TextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 512, 64,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mMainFish3TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mMainFish3TextureAtlas, this,
+						"cachinh/c3.png", 0, 0, 6, 1);
+		this.mMainFish3TextureAtlas.load();
+
+		this.mMainFish4TextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 512, 64,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mMainFish4TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mMainFish4TextureAtlas, this,
+						"cachinh/c4.png", 0, 0, 6, 1);
+		this.mMainFish4TextureAtlas.load();
+
+		this.mMainFish5TextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 512, 64,
+				TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mMainFish5TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mMainFish5TextureAtlas, this,
+						"cachinh/c6.png", 0, 0, 6, 1);
+		this.mMainFish5TextureAtlas.load();
+
+		/************************* Load Fish *********************************/
+
+		this.mCaNho1TextureAtlas = new BitmapTextureAtlas(getTextureManager(),
+				512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mCaNho1TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mCaNho1TextureAtlas, this,
+						"caphu/cl1.png", 0, 0, 3, 1);
+		this.mCaNho1TextureAtlas.load();
+
+		this.mCaNho2TextureAtlas = new BitmapTextureAtlas(getTextureManager(),
+				1024, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mCaNho2TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mCaNho2TextureAtlas, this,
+						"caphu/cl2.png", 0, 0, 6, 1);
+		this.mCaNho2TextureAtlas.load();
 
 		this.mCaNho3TextureAtlas = new BitmapTextureAtlas(getTextureManager(),
 				1024, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mCaNho3TextureRegion = BitmapTextureAtlasTextureRegionFactory
 				.createTiledFromAsset(this.mCaNho3TextureAtlas, this,
-						"ca_nho4.png", 0, 0, 6, 1);
+						"caphu/cl3.png", 0, 0, 6, 1);
 		this.mCaNho3TextureAtlas.load();
+
+		this.mCaNho4TextureAtlas = new BitmapTextureAtlas(getTextureManager(),
+				512, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mCaNho4TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mCaNho4TextureAtlas, this,
+						"caphu/cl4.png", 0, 0, 6, 1);
+		this.mCaNho4TextureAtlas.load();
+
+		this.mCaNho5TextureAtlas = new BitmapTextureAtlas(getTextureManager(),
+				256, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mCaNho5TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mCaNho5TextureAtlas, this,
+						"caphu/cl5.png", 0, 0, 4, 1);
+		this.mCaNho5TextureAtlas.load();
+
+		this.mCaNho6TextureAtlas = new BitmapTextureAtlas(getTextureManager(),
+				1024, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mCaNho6TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mCaNho6TextureAtlas, this,
+						"caphu/cl6.png", 0, 0, 6, 1);
+		this.mCaNho6TextureAtlas.load();
+
+		this.mCaNho7TextureAtlas = new BitmapTextureAtlas(getTextureManager(),
+				512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mCaNho7TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mCaNho7TextureAtlas, this,
+						"caphu/cl7.png", 0, 0, 4, 1);
+		this.mCaNho7TextureAtlas.load();
 	}
 
 	@Override
 	protected Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		this.mMainScene = new Scene();
-		/*
-		 * Sensor
-		 */
+
+		/******** Sensor **********/
+
 		sensorManager = (SensorManager) this
 				.getSystemService(this.SENSOR_SERVICE);
 		sensorManager.registerListener(this,
 				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
 				sensorManager.SENSOR_DELAY_GAME);
 
-		final Sprite background = new Sprite(0, 0, mBackgroundRegion,
-				this.getVertexBufferObjectManager());
-		mMainScene.setBackground(new SpriteBackground(background));
-
-		sX = (CAMERA_WIDTH - this.mMainFishRegion.getWidth()) / 2;
-		sY = (CAMERA_HEIGHT - this.mMainFishRegion.getHeight()) / 2;
-
-		mMainFish = new AnimatedSprite(sX, sY, this.mMainFishRegion,
-				this.mEngine.getVertexBufferObjectManager());
-		mMainFish.animate(new long[] { 100, 100, 100 }, 3, 5, true);
-		// mMainFish.setScale(1);
-		mMainScene.attachChild(mMainFish);
-
-		/*
-		 * Object pool
-		 */
-		linkCaNho1 = new LinkedList<CaNhoSprite>();
-		caNho1Pool = new CaNhoPool(mEngine, mCaNho1TiledTextureRegion, 1);
+		this.mMainScene = levelScene(2);
+		//
+		// final Sprite background = new Sprite(0, 0, mBackgroundRegion,
+		// this.getVertexBufferObjectManager());
+		// mMainScene.setBackground(new SpriteBackground(background));
+		//
+		// sX = (CAMERA_WIDTH - this.mMainFish1TextureRegion.getWidth()) / 2;
+		// sY = (CAMERA_HEIGHT - this.mMainFish1TextureRegion.getHeight()) / 2;
+		//
+		// mMainFish = new AnimatedSprite(sX, sY, this.mMainFish1TextureRegion,
+		// this.mEngine.getVertexBufferObjectManager());
+		// mMainFish.animate(new long[] { 100, 100, 100 }, 0, 2, true);
+		// // mMainFish.setScale(1);
+		// mMainScene.attachChild(mMainFish);
+		//
+		// /*
+		// * Object pool
+		// */
+		// linkCaNho1 = new LinkedList<CaNhoSprite>();
+		// caNho1Pool = new CaNhoPool(mEngine, mCaNho1TextureRegion, 1);
+		// // linkCaNho1.add(caNho1Pool.obtainPoolItem());
+		// // this.mMainScene.attachChild(linkCaNho1.getLast());
+		//
+		// linkCaNho2 = new LinkedList<CaNhoSprite>();
+		// caNho2Pool = new CaNhoPool(getEngine(), mCaNho2TextureRegion, 2);
+		// // linkCaNho2.add(caNho2Pool.obtainPoolItem());
+		// // this.mMainScene.attachChild(linkCaNho2.getLast());
+		//
+		// linkCaNho3 = new LinkedList<CaNhoSprite>();
+		// caNho3Pool = new CaNhoPool(mEngine, mCaNho3TextureRegion, 3);
+		// // linkCaNho3.add(caNho3Pool.obtainPoolItem());
+		// // this.mMainScene.attachChild(linkCaNho3.getLast());
+		// final Timer timer = new Timer();
+		// final TimerTask timerTask = new TimerTask() {
+		//
+		// @Override
+		// public void run() {
+		// // TODO Auto-generated method stub
 		// linkCaNho1.add(caNho1Pool.obtainPoolItem());
-		// this.mMainScene.attachChild(linkCaNho1.getLast());
-
-		linkCaNho2 = new LinkedList<CaNhoSprite>();
-		caNho2Pool = new CaNhoPool(getEngine(), mCaNho2Region, 2);
-		// linkCaNho2.add(caNho2Pool.obtainPoolItem());
-		// this.mMainScene.attachChild(linkCaNho2.getLast());
-
-		linkCaNho3 = new LinkedList<CaNhoSprite>();
-		caNho3Pool = new CaNhoPool(mEngine, mCaNho3TextureRegion, 3);
-		// linkCaNho3.add(caNho3Pool.obtainPoolItem());
-		// this.mMainScene.attachChild(linkCaNho3.getLast());
-
-		TimerHandler timerHandler = new TimerHandler(4, true,
-				new ITimerCallback() {
-
-					public void onTimePassed(TimerHandler pTimerHandler) {
-						// TODO Auto-generated method stub
-						linkCaNho1.add(caNho1Pool.obtainPoolItem());
-						linkCaNho2.add(caNho2Pool.obtainPoolItem());
-						linkCaNho3.add(caNho3Pool.obtainPoolItem());
-						try {
-							Level0Activity.this.mMainScene
-									.attachChild(linkCaNho3.getLast());
-							Level0Activity.this.mMainScene
-									.attachChild(linkCaNho1.getLast());
-							Level0Activity.this.mMainScene
-									.attachChild(linkCaNho2.getLast());
-						} catch (IllegalStateException e) {
-
-						}
-					}
-				});
-		this.mEngine.registerUpdateHandler(timerHandler);
-
-		BongBong bongBong = new BongBong(10, 2000, CAMERA_WIDTH - 30,
-				CAMERA_WIDTH - 30, CAMERA_HEIGHT + 10, -10);
-		mHandler.postDelayed(bongBong.mStartBall, 1000);
-
-		this.mEngine.registerUpdateHandler(new IUpdateHandler() {
-
-			public void reset() {
-
-			}
-
-			int i;
-
-			public void onUpdate(float pSecondsElapsed) {
-				updateSpritePosition();
-				changeFish();
-				float pX = 0;
-				if (flag == true) {
-					pX = mMainFish.getX();
-				} else if (flag == false) {
-					pX = mMainFish.getX() + mMainFish.getWidth();
-				}
-				try {
-					for (i = 0; i < linkCaNho1.size(); i++) {
-						if (linkCaNho1.get(i).getX() > CAMERA_WIDTH + 85
-								|| linkCaNho1.get(i).getX() < -85) {
-							caNho1Pool.recyclePoolItem(linkCaNho1.get(i));
-							// Log.e(tag, "Remove");
-							linkCaNho1.remove(i);
-						}
-
-						float pY = mMainFish.getY() + mMainFish.getHeight() / 2;
-						// Log.e(tag, "toa do mom ca = " + pX + " va " + pY);
-						if (pX == linkCaNho1.get(i).getX()
-								&& pY == (linkCaNho1.get(i).getY())
-										+ linkCaNho1.get(i).getHeight() / 2) {
-							Level0Activity.this.mMainScene
-									.detachChild(linkCaNho1.get(i));
-							linkCaNho1.remove(i);
-							Log.e(tag, "Va Cham");
-						}
-						if (linkCaNho1.get(i).contains(pX, pY)) {
-							Log.e(tag, "Va Cham");
-							mMainFish.setFlippedHorizontal(true);
-							mMainFish.stopAnimation(0);
-							mMainFish.animate(new long[] { 200, 200, 200 }, 0,
-									2, false, new IAnimationListener() {
-
-										public void onAnimationStarted(
-												AnimatedSprite pAnimatedSprite,
-												int pInitialLoopCount) {
-											// TODO Auto-generated method stub
-
-										}
-
-										public void onAnimationLoopFinished(
-												AnimatedSprite pAnimatedSprite,
-												int pRemainingLoopCount,
-												int pInitialLoopCount) {
-											// TODO Auto-generated method stub
-
-										}
-
-										public void onAnimationFrameChanged(
-												AnimatedSprite pAnimatedSprite,
-												int pOldFrameIndex,
-												int pNewFrameIndex) {
-											// TODO Auto-generated method stub
-
-										}
-
-										public void onAnimationFinished(
-												AnimatedSprite pAnimatedSprite) {
-											// TODO Auto-generated method stub
-											mMainFish.animate(new long[] { 200,
-													200, 200 }, 3, 5, true);
-										}
-									});
-							Level0Activity.this.mMainScene
-									.detachChild(linkCaNho1.get(i));
-							caNho1Pool.recyclePoolItem(linkCaNho1.get(i));
-							linkCaNho1.remove(i);
-						}
-
-					}
-
-					for (int j = 0; j < linkCaNho2.size(); j++) {
-						if (linkCaNho2.get(j).getX() > CAMERA_WIDTH + 85
-								|| linkCaNho2.get(j).getX() < -85) {
-							caNho2Pool.recyclePoolItem(linkCaNho2.get(j));
-							linkCaNho2.remove(j);
-						}
-					}
-					for (int z = 0; z < linkCaNho3.size(); z++) {
-						if (linkCaNho3.get(z).getX() > CAMERA_WIDTH + 85
-								|| linkCaNho3.get(z).getX() < -85) {
-							caNho3Pool.recyclePoolItem(linkCaNho3.get(z));
-							linkCaNho3.remove(z);
-						}
-					}
-				} catch (Exception e) {
-
-				}
-				// Log.e(tag, "So ca nho1 = " + linkCaNho1.size());
-				// Log.e(tag, "toa do X = " + mMainFishRegion.getTextureX()
-				// + " toa do Y = " + mMainFishRegion.getTextureY()
-				// + " so width = " + mMainFish.getWidth()
-				// + " so height = " + mMainFish.getHeight());
-
-			}
-		});
+		// linkCaNho1.add(caNho2Pool.obtainPoolItem());
+		// linkCaNho1.add(caNho3Pool.obtainPoolItem());
+		// try {
+		// // Level0Activity.this.mMainScene
+		// // .attachChild(linkCaNho3.getLast());
+		// for (int i = 0; i < linkCaNho1.size(); i++) {
+		// Level0Activity.this.mMainScene.attachChild(linkCaNho1
+		// .get(i));
+		// }
+		// // Level0Activity.this.mMainScene
+		// // .attachChild(linkCaNho1.getLast());
+		// // Level0Activity.this.mMainScene
+		// // .attachChild(linkCaNho2.getLast());
+		// } catch (IllegalStateException e) {
+		//
+		// }
+		// }
+		// };
+		// TimerHandler timerHandler = new TimerHandler(1, true,
+		// new ITimerCallback() {
+		//
+		// public void onTimePassed(TimerHandler pTimerHandler) {
+		// timer.schedule(timerTask, 1000);
+		//
+		// }
+		// });
+		// this.mEngine.registerUpdateHandler(timerHandler);
+		//
+		// BongBong bongBong = new BongBong(10, 2000, CAMERA_WIDTH - 30,
+		// CAMERA_WIDTH - 30, CAMERA_HEIGHT + 10, -10);
+		// mHandler.postDelayed(bongBong.mStartBall, 1000);
+		//
+		// this.mEngine.registerUpdateHandler(new IUpdateHandler() {
+		//
+		// public void reset() {
+		//
+		// }
+		//
+		// int i;
+		//
+		// public void onUpdate(float pSecondsElapsed) {
+		// updateSpritePosition();
+		// changeFish();
+		// float pX = 0;
+		// if (flag == true) {
+		// pX = mMainFish.getX();
+		// } else if (flag == false) {
+		// pX = mMainFish.getX() + mMainFish.getWidth();
+		// }
+		// try {
+		// for (i = 0; i < linkCaNho1.size(); i++) {
+		// if (linkCaNho1.get(i).getX() > CAMERA_WIDTH + 85
+		// || linkCaNho1.get(i).getX() < -85) {
+		// caNho1Pool.recyclePoolItem(linkCaNho1.get(i));
+		// // Log.e(tag, "Remove");
+		// linkCaNho1.remove(i);
+		// }
+		//
+		// float pY = mMainFish.getY() + mMainFish.getHeight() / 2;
+		// // Log.e(tag, "toa do mom ca = " + pX + " va " + pY);
+		// if (linkCaNho1.get(i).contains(pX, pY)) {
+		// // Log.e(tag, "Va Cham");
+		// mMainFish.setFlippedHorizontal(false);
+		// mMainFish.stopAnimation(0);
+		// mMainFish.animate(new long[] { 200, 200, 200 }, 3,
+		// 5, false, new IAnimationListener() {
+		//
+		// public void onAnimationStarted(
+		// AnimatedSprite pAnimatedSprite,
+		// int pInitialLoopCount) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		//
+		// public void onAnimationLoopFinished(
+		// AnimatedSprite pAnimatedSprite,
+		// int pRemainingLoopCount,
+		// int pInitialLoopCount) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		//
+		// public void onAnimationFrameChanged(
+		// AnimatedSprite pAnimatedSprite,
+		// int pOldFrameIndex,
+		// int pNewFrameIndex) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		//
+		// public void onAnimationFinished(
+		// AnimatedSprite pAnimatedSprite) {
+		// // TODO Auto-generated method stub
+		// mMainFish.animate(new long[] { 200,
+		// 200, 200 }, 0, 2, true);
+		// }
+		// });
+		// Level0Activity.this.mMainScene
+		// .detachChild(linkCaNho1.get(i));
+		// caNho1Pool.recyclePoolItem(linkCaNho1.get(i));
+		// linkCaNho1.remove(i);
+		// }
+		//
+		// }
+		//
+		// // for (int j = 0; j < linkCaNho2.size(); j++) {
+		// // if (linkCaNho2.get(j).getX() > CAMERA_WIDTH + 85
+		// // || linkCaNho2.get(j).getX() < -85) {
+		// // caNho2Pool.recyclePoolItem(linkCaNho2.get(j));
+		// // linkCaNho2.remove(j);
+		// // }
+		// // }
+		// // for (int z = 0; z < linkCaNho3.size(); z++) {
+		// // if (linkCaNho3.get(z).getX() > CAMERA_WIDTH + 85
+		// // || linkCaNho3.get(z).getX() < -85) {
+		// // caNho3Pool.recyclePoolItem(linkCaNho3.get(z));
+		// // linkCaNho3.remove(z);
+		// // }
+		// // }
+		// } catch (Exception e) {
+		//
+		// }
+		// // Log.e(tag, "So ca nho1 = " + linkCaNho1.size());
+		// // Log.e(tag, "toa do X = " + mMainFishRegion.getTextureX()
+		// // + " toa do Y = " + mMainFishRegion.getTextureY()
+		// // + " so width = " + mMainFish.getWidth()
+		// // + " so height = " + mMainFish.getHeight());
+		//
+		// }
+		// });
 		return mMainScene;
 	}
 
@@ -475,18 +583,58 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 
 	public void changeFish() {
 		if (accellerometerSpeedX > 1) {
-			mMainFish.setFlippedHorizontal(false);
+			mMainFish.setFlippedHorizontal(true);
 			flag = false;
 		} else {
-			mMainFish.setFlippedHorizontal(true);
+			mMainFish.setFlippedHorizontal(false);
 			flag = true;
 		}
 	}
 
-	// public CollisionHandler getPoint(){
-	// CollisionHandler handler=new CollisionHandler(pCollisionCallback,
-	// pCheckShape, pTargetShape)
-	// }
+	public void collides(final AnimatedSprite animatedSprite, float pX, float pY) {
+		if (animatedSprite.contains(pX, pY)) {
+			animatedSprite.stopAnimation(0);
+			animatedSprite.animate(new long[] { 200, 200, 200 }, 0, 2, false,
+					new IAnimationListener() {
+
+						public void onAnimationStarted(
+								AnimatedSprite pAnimatedSprite,
+								int pInitialLoopCount) {
+							// TODO Auto-generated method stub
+
+						}
+
+						public void onAnimationLoopFinished(
+								AnimatedSprite pAnimatedSprite,
+								int pRemainingLoopCount, int pInitialLoopCount) {
+							// TODO Auto-generated method stub
+
+						}
+
+						public void onAnimationFrameChanged(
+								AnimatedSprite pAnimatedSprite,
+								int pOldFrameIndex, int pNewFrameIndex) {
+							// TODO Auto-generated method stub
+
+						}
+
+						public void onAnimationFinished(
+								AnimatedSprite pAnimatedSprite) {
+							// TODO Auto-generated method stub
+							animatedSprite.animate(
+									new long[] { 200, 200, 200 }, 0, 2, true);
+						}
+					});
+		}
+		this.mMainFish.detachChild(animatedSprite);
+	}
+
+	public Scene levelScene(int levelID) {
+		Scene scene = new Scene();
+		mLevelController.setScene(scene);
+		mLevelController.loadLevel(levelID);
+		return scene;
+	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Inner and Anonymous Classes

@@ -19,7 +19,6 @@ import android.util.Log;
 
 import vn.sunnet.qplay.andenginefeedingfrenzy.constant.FishConstants;
 import vn.sunnet.qplay.andenginefeedingfrenzy.control.PathFish;
-import vn.sunnet.qplay.andenginefeedingfrenzy.object.FishSprite;
 
 /**
  * (c) D09CN2 - PTIT - Ha Noi
@@ -43,6 +42,7 @@ public class CaNhoSprite extends AnimatedSprite implements FishConstants {
 	private Random random;
 	private PathFish mPathFish;
 	public float pointFinish;
+	public static boolean flag = false;
 
 	// ===========================================================
 	// Constructors
@@ -140,8 +140,10 @@ public class CaNhoSprite extends AnimatedSprite implements FishConstants {
 	public void update() {
 		if (this.getInstance().getX() > pointFinish) {
 			this.getInstance().setFlippedHorizontal(true);
+			flag = true;
 		} else {
 			this.getInstance().setFlippedHorizontal(false);
+			flag = false;
 		}
 	}
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
