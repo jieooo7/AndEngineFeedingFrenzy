@@ -41,6 +41,7 @@ import org.andengine.util.modifier.ease.EaseSineInOut;
 
 import vn.sunnet.qplay.andenginefeedingfrenzy.constant.FishConstants;
 import vn.sunnet.qplay.andenginefeedingfrenzy.control.LevelController;
+import vn.sunnet.qplay.andenginefeedingfrenzy.control.ProfileManager;
 import vn.sunnet.qplay.andenginefeedingfrenzy.fishpool.CaNhoPool;
 import vn.sunnet.qplay.andenginefeedingfrenzy.fishpool.CaNhoSprite;
 
@@ -81,11 +82,11 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 	protected Camera mCamera;
 	protected Scene mMainScene;
 
-	private BitmapTextureAtlas mBackgroundAtlas;
-	private ITextureRegion mBackgroundRegion;
+	public BitmapTextureAtlas mBackgroundAtlas;
+	public ITextureRegion mBackgroundRegion;
 
-	private BitmapTextureAtlas mBallAtlas;
-	private ITextureRegion mBallRegion;
+	public BitmapTextureAtlas mBallAtlas;
+	public ITextureRegion mBallRegion;
 	private Sprite[] mBall = new Sprite[10];
 	private int numBall = 0;
 
@@ -161,6 +162,9 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 
 	static Level0Activity mLevel0Activity;
 	public LevelController mLevelController;
+	public ProfileManager mProfileManager;
+
+	public int currentLevel;
 
 	// ==================================================
 	// Constructors
@@ -178,8 +182,10 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 	// ----------------------------------------------------------------------------------------------
 	public EngineOptions onCreateEngineOptions() {
 		mHandler = new Handler();
+		currentLevel = 0;
 		random = new Random();
 		mLevel0Activity = this;
+		mProfileManager = new ProfileManager(this);
 		mLevelController = new LevelController(mLevel0Activity);
 		this.mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
@@ -632,8 +638,114 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 	public Scene levelScene(int levelID) {
 		Scene scene = new Scene();
 		mLevelController.setScene(scene);
-		mLevelController.loadLevel(levelID);
+		// addLevel(scene);
+		mLevelController.loadLevel(1);
 		return scene;
+	}
+
+	public void addLevel(Scene scene) {
+		if (mProfileManager.isLevelUnlocked(1)) {
+			mLevelController.loadLevel(1);
+		}
+		if (mProfileManager.isLevelUnlocked(2)) {
+			mLevelController.loadLevel(2);
+		}
+		if (mProfileManager.isLevelUnlocked(3)) {
+			mLevelController.loadLevel(3);
+		}
+		if (mProfileManager.isLevelUnlocked(4)) {
+			mLevelController.loadLevel(4);
+		}
+		if (mProfileManager.isLevelUnlocked(5)) {
+			mLevelController.loadLevel(5);
+		}
+		if (mProfileManager.isLevelUnlocked(6)) {
+			mLevelController.loadLevel(6);
+		}
+		if (mProfileManager.isLevelUnlocked(7)) {
+			mLevelController.loadLevel(7);
+		}
+		if (mProfileManager.isLevelUnlocked(8)) {
+			mLevelController.loadLevel(8);
+		}
+		if (mProfileManager.isLevelUnlocked(9)) {
+			mLevelController.loadLevel(9);
+		}
+		if (mProfileManager.isLevelUnlocked(10)) {
+			mLevelController.loadLevel(10);
+		}
+		if (mProfileManager.isLevelUnlocked(11)) {
+			mLevelController.loadLevel(11);
+		}
+		if (mProfileManager.isLevelUnlocked(12)) {
+			mLevelController.loadLevel(12);
+		}
+		if (mProfileManager.isLevelUnlocked(13)) {
+			mLevelController.loadLevel(13);
+		}
+		if (mProfileManager.isLevelUnlocked(14)) {
+			mLevelController.loadLevel(14);
+		}
+		if (mProfileManager.isLevelUnlocked(15)) {
+			mLevelController.loadLevel(15);
+		}
+		if (mProfileManager.isLevelUnlocked(16)) {
+			mLevelController.loadLevel(16);
+		}
+		if (mProfileManager.isLevelUnlocked(17)) {
+			mLevelController.loadLevel(17);
+		}
+		if (mProfileManager.isLevelUnlocked(18)) {
+			mLevelController.loadLevel(18);
+		}
+		if (mProfileManager.isLevelUnlocked(19)) {
+			mLevelController.loadLevel(19);
+		}
+		if (mProfileManager.isLevelUnlocked(20)) {
+			mLevelController.loadLevel(20);
+		}
+		if (mProfileManager.isLevelUnlocked(21)) {
+			mLevelController.loadLevel(21);
+		}
+		if (mProfileManager.isLevelUnlocked(22)) {
+			mLevelController.loadLevel(22);
+		}
+		if (mProfileManager.isLevelUnlocked(23)) {
+			mLevelController.loadLevel(23);
+		}
+		if (mProfileManager.isLevelUnlocked(24)) {
+			mLevelController.loadLevel(24);
+		}
+		if (mProfileManager.isLevelUnlocked(25)) {
+			mLevelController.loadLevel(25);
+		}
+		if (mProfileManager.isLevelUnlocked(26)) {
+			mLevelController.loadLevel(26);
+		}
+		if (mProfileManager.isLevelUnlocked(27)) {
+			mLevelController.loadLevel(27);
+		}
+		if (mProfileManager.isLevelUnlocked(28)) {
+			mLevelController.loadLevel(28);
+		}
+		if (mProfileManager.isLevelUnlocked(29)) {
+			mLevelController.loadLevel(29);
+		}
+		if (mProfileManager.isLevelUnlocked(30)) {
+			mLevelController.loadLevel(30);
+		}
+		if (mProfileManager.isLevelUnlocked(31)) {
+			mLevelController.loadLevel(31);
+		}
+		if (mProfileManager.isLevelUnlocked(32)) {
+			mLevelController.loadLevel(32);
+		}
+		if (mProfileManager.isLevelUnlocked(33)) {
+			mLevelController.loadLevel(33);
+		}
+		if (mProfileManager.isLevelUnlocked(34)) {
+			mLevelController.loadLevel(34);
+		}
 	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -670,27 +782,7 @@ public class Level0Activity extends SimpleBaseGameActivity implements
 				final Path ballPath = new Path(2).to(X1, Y1).to(
 						X2 - random.nextInt(100), Y2);
 				mBall[i].registerEntityModifier(new LoopEntityModifier(
-						new PathModifier(5, ballPath, null,
-								new IPathModifierListener() {
-
-									public void onPathWaypointStarted(
-											PathModifier arg0, IEntity arg1,
-											int arg2) {
-									}
-
-									public void onPathWaypointFinished(
-											PathModifier arg0, IEntity arg1,
-											int arg2) {
-									}
-
-									public void onPathStarted(
-											PathModifier arg0, IEntity arg1) {
-									}
-
-									public void onPathFinished(
-											PathModifier arg0, IEntity arg1) {
-									}
-								})));
+						new PathModifier(5, ballPath)));
 				Level0Activity.this.mMainScene.attachChild(mBall[i]);
 				if (numBall < soLuong) {
 					mHandler.postDelayed(mStartBall, time);
